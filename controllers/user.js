@@ -6,13 +6,10 @@ const User = require("../models/user.js");
 
 // Connect to DB
 const db = config.DB_HOST;
-mongoose.connect(db, function (err) {
-    if (err) {
-        console.error('Error! ' + err)
-    } else {
-        console.log('Connected to mongodb')
-    }
-});
+mongoose
+  .connect(db)
+  .then(() => console.log("MongoDB connected..."))
+  .catch((err) => console.log(err));
 
 exports.register = async (req, res) => {
 
