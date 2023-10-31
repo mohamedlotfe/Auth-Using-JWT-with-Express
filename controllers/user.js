@@ -43,26 +43,27 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
 
-    User.findOne({ email: req.body.email }, async (err, user) => {
-        if (err) {
-            console.log(err)
-        } else {
-            if (user) {
-                const validPass = await bcrypt.compare(req.body.password, user.password);
-                if (!validPass) return res.status(401).send("Mobile/Email or Password is wrong");
-
-                // Create and assign token
-                let payload = { id: user._id, user_type_id: user.user_type_id };
-                const token = jwt.sign(payload, config.TOKEN_SECRET);
-
-                res.status(200).header("auth-token", token).send({ "token": token });
-            }
-            else {
-                res.status(401).send('Invalid mobile')
-            }
-
+    User.findOne({ email: req.body.email })
+      .then(async (user) => {
+        if (!user) {
+          return res.status(401).send("Mobile/Email or Password is wrong");
         }
-    })
+        const validPass = await bcrypt.compare(
+          req.body.password,
+          user.password
+        );
+        if (!validPass)
+          return res.status(401).send("Mobile/Email or Password is wrong");
+
+        // Create and assign token
+        let payload = { id: user._id, user_type_id: user.user_type_id };
+        const token = jwt.sign(payload, config.TOKEN_SECRET);
+
+        res.status(200).header("auth-token", token).send({ token: token });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 }
 
 // Access auth users only
